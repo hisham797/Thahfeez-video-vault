@@ -9,10 +9,6 @@ interface VideoPlayerProps {
   onPrevious?: () => void;
   onProgress?: (progress: number) => void;
   onComplete?: () => void;
-  thumbnailUrl?: string;
-  onTimeUpdate?: (currentTime: number) => void;
-  onEnded?: () => void;
-  className?: string;
 }
 
 export function VideoPlayer({ 
@@ -21,11 +17,7 @@ export function VideoPlayer({
   onNext, 
   onPrevious, 
   onProgress,
-  onComplete,
-  thumbnailUrl,
-  onTimeUpdate,
-  onEnded,
-  className
+  onComplete 
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const videoContainerRef = useRef<HTMLDivElement>(null);
@@ -413,46 +405,37 @@ export function VideoPlayer({
     }
   };
 
-  const handleTimeUpdate = () => {
-    if (videoRef.current && onTimeUpdate) {
-      onTimeUpdate(videoRef.current.currentTime);
-    }
-  };
-
-  const handleVideoEnd = () => {
-    if (onEnded) {
-      onEnded();
-    }
-  };
-
   return (
-    <div className={`relative w-full aspect-video bg-black rounded-lg overflow-hidden ${className}`}>
-      <video
-        ref={videoRef}
-        className="w-full h-full"
-        controls
-        playsInline
-        onPlay={() => setIsPlaying(true)}
-        onPause={() => setIsPlaying(false)}
-        onTimeUpdate={handleTimeUpdate}
-        onEnded={handleVideoEnd}
-        poster={isPlaying ? undefined : thumbnailUrl}
-      >
-        <source src={videoUrl} type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
-      
-      {/* Play/Pause overlay button */}
-      <div 
-        className={`absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 transition-opacity ${isPlaying ? 'opacity-0 hover:opacity-100' : 'opacity-100'}`}
-        onClick={togglePlay}
-      >
-        <button 
-          className="bg-white bg-opacity-70 hover:bg-opacity-90 w-16 h-16 rounded-full flex items-center justify-center transition-transform hover:scale-110"
-          aria-label={isPlaying ? "Pause" : "Play"}
+    <div 
+      ref={videoContainerRef} 
+      className="video-player bg-black rounded-lg overflow-hidden shadow-xl relative"
+    >
+      {/* Video */}
+      <div className="relative aspect-video">
+        {isYouTube ? (
+          <div id="youtube-player" className="w-full h-full"></div>
+        ) : (
+          <video
+            ref={videoRef}
+            className="w-full h-full object-contain"
+            poster={isPlaying ? undefined : "/lovable-uploads/368b5a35-0a2d-486c-924e-19b4b78d59bc.png"}
+            controls={false}
+            src={videoUrl}
+          />
+        )}
+        
+        {/* Play/Pause overlay button */}
+        <div 
+          className={`absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 transition-opacity ${isPlaying ? 'opacity-0 hover:opacity-100' : 'opacity-100'}`}
+          onClick={togglePlay}
         >
-          {isPlaying ? <Pause size={30} /> : <Play size={30} className="ml-1" />}
-        </button>
+          <button 
+            className="bg-white bg-opacity-70 hover:bg-opacity-90 w-16 h-16 rounded-full flex items-center justify-center transition-transform hover:scale-110"
+            aria-label={isPlaying ? "Pause" : "Play"}
+          >
+            {isPlaying ? <Pause size={30} /> : <Play size={30} className="ml-1" />}
+          </button>
+        </div>
       </div>
       
       {/* Controls */}
