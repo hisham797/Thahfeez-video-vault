@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
 
 export async function GET() {
   try {
@@ -89,22 +90,36 @@ export async function PATCH(request: Request) {
       );
     }
 
+    // Convert id to ObjectId
+    let objectId;
+    try {
+      objectId = new ObjectId(id);
+    } catch (e) {
+      return NextResponse.json(
+        { error: 'Invalid message ID format' },
+        { status: 400 }
+      );
+    }
+
     const result = await db.collection('messages').updateOne(
-      { _id: id },
-      { 
-        $set: { 
+      { _id: objectId },
+      {
+        $set: {
           read,
-          updatedAt: new Date()
-        }
+          updatedAt: new Date(),
+        },
       }
     );
 
-    if (!result.acknowledged) {
-      throw new Error('Failed to update message');
+    if (result.matchedCount === 0) {
+      return NextResponse.json(
+        { error: 'Message not found' },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json({
-      message: 'Message updated successfully'
+      message: 'Message updated successfully',
     });
   } catch (error) {
     console.error('Error updating message:', error);
@@ -118,8 +133,16 @@ export async function PATCH(request: Request) {
 export async function DELETE(request: Request) {
   try {
     const { db } = await connectToDatabase();
+    // Support both query param and JSON body for ID
+    let id: string | null = null;
     const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
+    id = searchParams.get('id');
+    if (!id && request.method === 'DELETE') {
+      try {
+        const body = await request.json();
+        id = body.id;
+      } catch {}
+    }
 
     if (!id) {
       return NextResponse.json(
@@ -128,14 +151,28 @@ export async function DELETE(request: Request) {
       );
     }
 
-    const result = await db.collection('messages').deleteOne({ _id: id });
+    // Convert id to ObjectId
+    let objectId;
+    try {
+      objectId = new ObjectId(id);
+    } catch (e) {
+      return NextResponse.json(
+        { error: 'Invalid message ID format' },
+        { status: 400 }
+      );
+    }
 
-    if (!result.acknowledged) {
-      throw new Error('Failed to delete message');
+    const result = await db.collection('messages').deleteOne({ _id: objectId });
+
+    if (result.deletedCount === 0) {
+      return NextResponse.json(
+        { error: 'Message not found' },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json({
-      message: 'Message deleted successfully'
+      message: 'Message deleted successfully',
     });
   } catch (error) {
     console.error('Error deleting message:', error);
