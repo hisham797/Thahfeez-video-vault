@@ -15,6 +15,7 @@ import Link from "next/link";
 import { useForm, Controller, FieldValues, Control } from "react-hook-form";
 import { toast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import RegistrationClosed from '@/components/RegistrationClosed';
 
 interface EventRegistrationFormData {
   fullName: string;
@@ -56,6 +57,7 @@ const EventRegistration = () => {
   const [step, setStep] = useState(1);
   const [password, setPassword] = useState("");
   const [isAlreadyRegistered, setIsAlreadyRegistered] = useState(false);
+  const [isRegistrationClosed, setIsRegistrationClosed] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -70,8 +72,19 @@ const EventRegistration = () => {
         }
       }
     };
-
+    const checkRegistrationCount = async () => {
+      try {
+        const response = await fetch('/api/registrations?count=true');
+        const data = await response.json();
+        if (data.count === 100) {
+          setIsRegistrationClosed(true);
+        }
+      } catch (error) {
+        console.error('Error checking registration count:', error);
+      }
+    };
     checkRegistration();
+    checkRegistrationCount();
   }, [user]);
 
   const { control, handleSubmit, watch, formState: { errors } } = useForm<EventRegistrationFormData>({
@@ -137,7 +150,9 @@ const EventRegistration = () => {
     }
   };
   
- 
+  if (isRegistrationClosed) {
+    return <RegistrationClosed />;
+  }
   if (isAlreadyRegistered) {
     return (
       <Layout>

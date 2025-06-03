@@ -66,7 +66,17 @@ export async function POST(request: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const url = new URL(request.url);
+  if (url.searchParams.get('count') === 'true') {
+    try {
+      const { db } = await connectToDatabase();
+      const count = await db.collection('registrations').countDocuments();
+      return NextResponse.json({ count });
+    } catch (error) {
+      return NextResponse.json({ error: 'Failed to fetch count' }, { status: 500 });
+    }
+  }
   try {
     const { db } = await connectToDatabase();
     const registrations = await db.collection('registrations')
