@@ -1,14 +1,18 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
+type RouteSegment = {
+  id: string;
+};
+
 export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+  request: NextRequest,
+  { params }: { params: Promise<RouteSegment> }
+): Promise<NextResponse> {
   try {
     const { db } = await connectToDatabase();
-    const videoId = params.id;
+    const { id: videoId } = await params;
 
     // Validate video ID
     if (!ObjectId.isValid(videoId)) {

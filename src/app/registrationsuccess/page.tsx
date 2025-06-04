@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,15 +9,37 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 
+interface Registration {
+  eventType: string;
+  status: string;
+}
+
 export default function RegistrationSuccess() {
   const router = useRouter();
   const { user } = useAuth();
+  const [registration, setRegistration] = useState<Registration | null>(null);
 
   useEffect(() => {
     // If user is not logged in, redirect to login
     if (!user) {
       router.push('/login');
+      return;
     }
+
+    // Fetch registration details
+    const fetchRegistration = async () => {
+      try {
+        const response = await fetch(`/api/registrations/${user.email}`);
+        if (response.ok) {
+          const data = await response.json();
+          setRegistration(data);
+        }
+      } catch (error) {
+        console.error('Error fetching registration:', error);
+      }
+    };
+
+    fetchRegistration();
   }, [user, router]);
 
   if (!user) {
@@ -48,18 +70,22 @@ export default function RegistrationSuccess() {
                 <p className="mb-4">Your registration is complete and you're now logged in. You can access all features of Vista Video Vault.</p>
                 <div className="space-y-2 text-sm">
                   <p><strong>Email:</strong> {user.email}</p>
-                  <p><strong>Event Type:</strong> {user.eventType}</p>
-                  <p><strong>Status:</strong> {user.status}</p>
+                  {registration && (
+                    <>
+                      <p><strong>Event Type:</strong> {registration.eventType}</p>
+                      <p><strong>Status:</strong> {registration.status}</p>
+                    </>
+                  )}
                 </div>
               </div>
             </CardContent>
             <CardFooter className="flex justify-center gap-4">
               <Button variant="outline" asChild>
                 <Link href="/">Return Home</Link>
-                </Button>
+              </Button>
               <Button asChild>
                 <Link href="/videos">Watch Videos Now</Link>
-                </Button>
+              </Button>
             </CardFooter>
           </Card>
         </div>

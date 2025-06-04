@@ -104,7 +104,7 @@ const AdminDashboard = () => {
     <AdminLayout>
       <div className="p-6 md:p-8 w-full">
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-white">Welcome back, <span className="text-indigo-400">{user?.name || 'Admin'}</span></h2>
+          <h2 className="text-2xl font-bold text-white">Welcome back, <span className="text-indigo-400">{user?.fullName || 'Admin'}</span></h2>
           <p className="text-gray-400 mt-1">Here's what's happening with your seminar.</p>
         </div>
         

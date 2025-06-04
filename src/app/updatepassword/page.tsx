@@ -13,16 +13,22 @@ const UpdatePassword = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [email, setEmail] = useState<string | null>(null);
+  const [verifiedOTP, setVerifiedOTP] = useState<string | null>(null);
   const router = useRouter();
-  const email = sessionStorage.getItem("resetEmail");
-  const verifiedOTP = sessionStorage.getItem("verifiedOTP");
 
   useEffect(() => {
+    // Access sessionStorage only on the client side
+    const storedEmail = sessionStorage.getItem("resetEmail");
+    const storedOTP = sessionStorage.getItem("verifiedOTP");
+    setEmail(storedEmail);
+    setVerifiedOTP(storedOTP);
+
     // Redirect to forgot password if email or OTP is not set
-    if (!email || !verifiedOTP) {
+    if (!storedEmail || !storedOTP) {
       router.push("/forgotpassword");
     }
-  }, [email, verifiedOTP, router]);
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

@@ -13,12 +13,16 @@ const VerifyOTP = () => {
   const [loading, setLoading] = useState(false);
   const [resendDisabled, setResendDisabled] = useState(true);
   const [countdown, setCountdown] = useState(60);
+  const [email, setEmail] = useState<string | null>(null);
   const router = useRouter();
-  const email = sessionStorage.getItem("resetEmail");
 
   useEffect(() => {
+    // Access sessionStorage only on the client side
+    const storedEmail = sessionStorage.getItem("resetEmail");
+    setEmail(storedEmail);
+
     // Redirect to forgot password if email is not set
-    if (!email) {
+    if (!storedEmail) {
       router.push("/forgotpassword");
       return;
     }
@@ -36,7 +40,7 @@ const VerifyOTP = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [email, router]);
+  }, [router]);
 
   const handleResendCode = () => {
     setResendDisabled(true);

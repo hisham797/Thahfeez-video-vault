@@ -1,18 +1,23 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
+type RouteSegment = {
+  id: string;
+};
+
 export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+  request: NextRequest,
+  { params }: { params: Promise<RouteSegment> }
+): Promise<NextResponse> {
   try {
     const videoData = await request.json();
     const client = await clientPromise;
     const db = client.db('thahfeez');
     const collection = db.collection('videos');
 
-    const objectId = new ObjectId(params.id);
+    const { id } = await params;
+    const objectId = new ObjectId(id);
     const result = await collection.updateOne(
       { _id: objectId },
       { $set: { ...videoData, updatedAt: new Date() } }
@@ -39,15 +44,16 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+  request: NextRequest,
+  { params }: { params: Promise<RouteSegment> }
+): Promise<NextResponse> {
   try {
     const client = await clientPromise;
     const db = client.db('thahfeez');
     const collection = db.collection('videos');
 
-    const objectId = new ObjectId(params.id);
+    const { id } = await params;
+    const objectId = new ObjectId(id);
     const result = await collection.deleteOne({ _id: objectId });
 
     if (result.deletedCount === 0) {
