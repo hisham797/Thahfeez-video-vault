@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Vista Video Vault',
-  description: 'Your secure video management platform',
+  title: 'Thahfeez-video-va',
+  description: 'Learn the quran anywhere anytime',
   icons: {
     icon: [
       {
@@ -35,13 +35,13 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://vistavideovault.com',
-    title: 'Vista Video Vault',
-    description: 'Your secure video management platform',
-    siteName: 'Vista Video Vault',
+    title: 'Thahfeez-video-vault',
+    description: 'Learn the quran anywhere anytime',
+    siteName: 'Thahfeez-video-vault',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Vista Video Vault',
-    description: 'Your secure video management platform',
+    title: 'Thahfeez-video-va',
+    description: 'Learn the quran anywhere anytime',
   },
 } 
